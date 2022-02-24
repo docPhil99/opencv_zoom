@@ -2,9 +2,13 @@
 #This example will create a 600 second video, with 25 frames per second and it will print the elapsed and remaining times using a two second accuracy.
 fps=25;
 seconds=600;
-upperFont=100;
+upperFont=50;
 lowerFont=100;
 #ffmpeg -loop 1 -i ~/Pictures/Black-Background.png -c:v libx264 -r $fps -t $seconds -pix_fmt yuv420p -vf "fps=$fps,drawtext=fontfile='/usr/share/fonts/urw-base35/C059-Bold.otf':fontcolor=yellow:fontsize=$upperFont:x=(w-text_w)/2:y=(h-text_h)/2:text='%{eif\:($seconds-t)\:d}.%{eif\:(mod($seconds-t, 1)*pow(10,$mantissaDigits))\:d\:$mantissaDigits}',drawtext=fontfile='/usr/share/fonts/urw-base35/C059-Bold.otf':fontcolor=yellow:fontsize=$lowerFont:x=(w-text_w)/2:y=((h-text_h)/2)+$upperFont:text='Elapsed\: %{eif\:(t)\:d}.%{eif\:(mod(t, 1)*pow(10,$mantissaDigits))\:d\:$mantissaDigits}'" "$seconds seconds countdown timer.mp4";
-ffmpeg -stream_loop -1 -i hypnotoad.mp4 -c:v libx264 -r $fps -t $seconds -pix_fmt yuv420p -vf "drawtext=fontfile='/usr/share/fonts/urw-base35/C059-Bold.otf':
-              fontcolor=black:fontsize=$upperFont:x=150:y=10:
-     text='%{eif\:trunc(mod((($seconds-t)/60),60))\:d\:2} m %{eif\:trunc(mod($seconds-t\,60))\:d\:2} s'" -an  "$seconds seconds countdown timer.mp4";
+#ffmpeg -stream_loop -1 -i hypnotoad.mp4 -c:v libx264 -r $fps -t $seconds -pix_fmt yuv420p -vf "drawtext=fontfile='/usr/share/fonts/urw-base35/C059-Bold.otf':
+#              fontcolor=black:fontsize=$upperFont:x=150:y=10:
+#     text='%{eif\:trunc(mod((($seconds-t)/60),60))\:d\:2} m %{eif\:trunc(mod($seconds-t\,60))\:d\:2} s'" -an  "$seconds seconds countdown timer.mp4";
+
+ffmpeg -stream_loop -1 -i videos/monty2.mp4 -c:v libx264 -r $fps -t $seconds -pix_fmt yuv420p -vf "drawtext=fontfile='/usr/share/fonts/urw-base35/C059-Bold.otf':
+              fontcolor=white:fontsize=$upperFont:x=50:y=10:
+     text='%{eif\:trunc(mod((($seconds-t)/60),60))\:d\:2} m %{eif\:trunc(mod($seconds-t\,60))\:d\:2} s'" -an  "monty2_$seconds seconds countdown timer.mp4";

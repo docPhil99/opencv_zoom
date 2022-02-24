@@ -3,6 +3,8 @@ Example streaming ffmpeg numpy processing.
 Demonstrates using ffmpeg to decode video input, process the frames in
 python/opencv, and then encode the video output to /dev/video.
 
+run  sudo apt install v4l2loopback-dkms  
+
 Before starting run sudo modprobe v4l2loopback \
       devices=1 exclusive_caps=1 video_nr=5 \
       card_label="Dummy Camera"
@@ -54,7 +56,9 @@ class VideoLoopBack:
 
             args = (
                 ffmpeg
-                    .input(self.in_file,re=None,stream_loop='-1',fflags='nobuffer',flags='low_delay')
+                    #.input(self.in_file,re=None,stream_loop='-1',fflags='nobuffer',flags='low_delay')
+                    .input(self.in_file, framerate=15, stream_loop='-1', fflags='nobuffer', flags='low_delay')
+
                     .output('pipe:', format='rawvideo', pix_fmt='rgb24',vf=f'scale={self.width}x{self.height}')
                     .compile()
             )
@@ -149,6 +153,8 @@ class VideoLoopBack:
                 cv2.putText(dirty_frame,f"{idx}:  {f[0]}",(10,30*idx+30),cv2.FONT_HERSHEY_PLAIN,2,(255,0,0),1)
             cv2.imshow("test", dirty_frame)
             key = cv2.waitKey(10)
+            if key == ord('q'):
+                break
             if key == ord('l') and process_alt:
                 self.__toggle_live = not self.__toggle_live
 
@@ -159,13 +165,12 @@ class VideoLoopBack:
 
            # print(key)
 
-
-
+        process2.stdin.close()
         logger.info('Waiting for ffmpeg process1')
         process1.wait()
 
         logger.info('Waiting for ffmpeg process2')
-        process2.stdin.close()
+
         process2.wait()
         logger.info('Done')
 
