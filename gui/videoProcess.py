@@ -3,6 +3,7 @@ import subprocess
 from loguru import logger
 import numpy as np
 from PySide6.QtCore import QObject,Signal, Slot
+import cv2
 
 class VideoLoopBack(QObject):
     def __init__(self,  out_filename='/dev/video5', width=640, height=480,
@@ -28,10 +29,10 @@ class VideoLoopBack(QObject):
         return subprocess.Popen(args, stdin=subprocess.PIPE)
 
     def write_frame(self,process2, frame):
-        logger.debug('Writing frame')
-
+        #logger.debug('Writing frame')
+        frame2 = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         process2.stdin.write(
-            frame
+            frame2
                 .astype(np.uint8)
                 .tobytes()
         )

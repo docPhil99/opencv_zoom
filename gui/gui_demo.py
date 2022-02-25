@@ -38,10 +38,17 @@ class VideoThread(QObject):
             ret, cv_img = self.cap.read()
             if ret:
                 fimg = self.filter_list[self._ind][1].process(cv_img)
+                logger.debug(cv_img.shape)
                 self.video_loop.new_image(fimg)
                 self.change_pixmap_signal.emit(fimg)
                 self._fps.update()
                 self.update_fps_signal.emit(self._fps.fps)
+        logger.info('Stopping thread')
+        self.video_loop.process2.stdin.close()
+        self.video_loop.process2.terminate()
+        logger.debug('Video writer closed')
+        self.cap.release()
+        logger.debug('Capture device closed')
 
     @Slot()
     def pause(self):
@@ -52,7 +59,8 @@ class VideoThread(QObject):
     def stop(self):
         """Sets run flag to False and waits for thread to finish"""
         self._run_flag = False
-        self.cap.release()
+
+        logger.debug('Stop Ran')
 
 #        self.wait()
 
@@ -105,8 +113,6 @@ class App(QWidget):
         self.MainProcess.get_image_functions()
         self.fps_label = QLabel('FPS: XXX')
         self.initUI()
-
-
         self._thread = QThread(self)
         self.video_worker = VideoThread(self.MainProcess.list_of_filters)
         #self.combo.currentIndexChanged.connect(self.video_worker.new_filter_slot)
@@ -118,7 +124,7 @@ class App(QWidget):
         self.combo.setCurrentIndex(self.MainProcess.blank_index)
         # connect the buttons
         self.start_button.clicked.connect(self.video_worker.start)
-        self.pause_button.clicked.connect(lambda x: self.video_worker.pause()) # force this to run on current thread
+        self.quit_button.clicked.connect(self.close) # force this to run on current thread
 
         self._thread.start()
 
@@ -134,7 +140,7 @@ class App(QWidget):
 
         self.cam = CamImage()
         self.start_button = QPushButton("Start")
-        self.pause_button = QPushButton("Stop")
+        self.quit_button = QPushButton("Quit")
         controls = ControlWidget()
         self.combo = QComboBox(self)
         for it in self.MainProcess.list_of_filters:
@@ -147,7 +153,7 @@ class App(QWidget):
         hbuttons = QHBoxLayout()
         hbuttons.addWidget(self.combo)
         hbuttons.addWidget(self.start_button)
-        hbuttons.addWidget(self.pause_button)
+        hbuttons.addWidget(self.quit_button)
         vbutton = QVBoxLayout()
         vbutton.addLayout(hbuttons)
         vbutton.addWidget(self.fps_label)
@@ -167,7 +173,9 @@ class App(QWidget):
         self.show()
 
     def closeEvent(self, event):
+        logger.debug('Got Close Event')
         self.video_worker.stop()
+        self._thread.wait()
         event.accept()
 
     @Slot(np.ndarray)

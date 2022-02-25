@@ -130,23 +130,26 @@ class laplace_of_gauss(BaseProcess):
         cv2.putText(img,"LoG",(40,100),cv2.FONT_HERSHEY_SIMPLEX,3,(255,255,255),2, cv2.LINE_AA)
         img = cv2.flip(img, 1)
         return img
-#
-# def oil_paint(frame):
-#     kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (36, 36))
-#     morph = cv2.morphologyEx(frame, cv2.MORPH_OPEN, kernel)
-#     result = cv2.normalize(morph, None, 20, 255, cv2.NORM_MINMAX)
-#     return result
-#
-#
-# def adaptive_threshold(frame):
-#     img = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-#     frame = cv2.adaptiveThreshold(img, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2)
-#     return frame
-#
-# def global_threshold(frame):
-#     img = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-#     _,frame = cv2.threshold(img,0,255,cv2.THRESH_BINARY+cv2.THRESH_OTSU)
-#     return frame
+
+class oil_paint(BaseProcess):
+    def process(image):
+        kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (36, 36))
+        morph = cv2.morphologyEx(image, cv2.MORPH_OPEN, kernel)
+        result = cv2.normalize(morph, None, 20, 255, cv2.NORM_MINMAX)
+        return result
+
+
+class adaptive_threshold(BaseProcess):
+    def process(image):
+        img = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        frame = cv2.adaptiveThreshold(img, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2)
+        return frame
+
+class global_threshold(BaseProcess):
+    def process(image):
+        img = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        _,frame = cv2.threshold(img,0,255,cv2.THRESH_BINARY+cv2.THRESH_OTSU)
+        return frame
 class colormap(BaseProcess):
     def process(image):
         return cv2.cvtColor(image,cv2.COLOR_BGR2HSV)
